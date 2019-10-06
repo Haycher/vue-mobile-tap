@@ -28,75 +28,94 @@ function getOptions(modifiers){
     if(passiveSupport) {
         return {
             capture: false, // 冒泡阶段触发
-            once: modifiers.once || false,    // 是否单次监听
-            passive: modifiers.passive === undefined ? modifiers.passive : true   // 让阻止默认行为(preventDefault()) 失效
+            passive: modifiers.passive === undefined ? modifiers.passive : true   // 让 preventDefault() 失效,让tap事件响应更快
         }
     }else{
         return false;
     }
 }
 
-function Init(vueHandler, modifiers){
-    this.startX = 0;
-    this.startY = 0;
-    this.endX = 0;
-    this.endY = 0;
-    this.doOnce = false;
-    this.startEvent = null;
-    this.startHandler = function(event){
-        if(modifiers.stop){
-            event.stopPropagation();
-        }
-        this.startEvent = event;
+function handlerController(el, event, type){
+    let tapEvent = el.__tapEvent;
+    if(tapEvent.modifiers.stop){//stop标记位用于阻止事件冒泡
+        event.stopPropagation();
+    }
+    if(type === 'touchstart'){
         let e = event.touches[0];
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-    }
-    this.endHandler = function(event){
-        if(!passiveSupport && modifiers.once && this.doOnce){
-            return;
-        }
-        if(modifiers.stop){
-            event.stopPropagation();
-        }
+        tapEvent.startX = e.clientX;
+        tapEvent.startY = e.clientY;
+        tapEvent.touchstartEvent = event;
+        tapEvent.startTime = new Date().getTime();
+    }else if(type === 'touchend'){
         let e = event.changedTouches[0];
-        this.endX = e.clientX;
-        this.endY = e.clientY;
-        if(Math.sqrt(this.endX - this.startX) + Math.sqrt(this.endY - this.startY) < 50){
-            this.doOnce = true;
-            vueHandler(this.startEvent, event);
+        tapEvent.endX = e.clientX;
+        tapEvent.endY = e.clientY;
+        const tapWidth = Math.sqrt(tapEvent.endX - tapEvent.startX) + Math.sqrt(tapEvent.endY - tapEvent.startY);
+        const timeDiff = new Date().getTime() - tapEvent.startTime;
+        if(tapWidth < 50 && timeDiff < 600){
+            tapEvent.vueHandler({
+                touchstartEvent: tapEvent.touchstartEvent,
+                touchendEvent: event
+            }, ...tapEvent.args);
+            if(tapEvent.modifiers.once){
+                unbind(el, 'touchstart', startHandler, tapEvent.modifiers)
+                unbind(el, 'touchend', endHandler, tapEvent.modifiers)
+            }
         }
-    }
-    this.clickHandler = function(event){
-        if(!passiveSupport && modifiers.once && this.doOnce){
-            return;
+    }else{
+        tapEvent.vueHandler({
+            clickEvent: event
+        }, ...tapEvent.args);
+        if(tapEvent.modifiers.once){
+            unbind(el, 'click', clickHandler, tapEvent.modifiers)
         }
-        if(modifiers.stop){
-            event.stopPropagation();
-        }
-        this.doOnce = true;
-        vueHandler(event);
     }
 }
 
+function startHandler(event){
+    handlerController(this, event, 'touchstart')
+}
+
+function endHandler(event){
+    handlerController(this, event, 'touchend')
+}
+
+function clickHandler(event){
+    handlerController(this, event, 'click')
+}
 
 function bindFunction(el, binding){
-    let vueHandler = binding.value || function (){};
-    el.__tapEvent = new Init(vueHandler, binding.modifiers)
-    if(touchSupport){
-        bind(el, 'touchstart', el.__tapEvent.startHandler, binding.modifiers)
-        bind(el, 'touchend', el.__tapEvent.endHandler, binding.modifiers)
+    const bindType = typeof binding.value;
+    el.__tapEvent = {
+        modifiers: binding.modifiers,
+        args: []
+    }
+    if(bindType === 'function'){
+        el.__tapEvent.vueHandler = binding.value;
+    }else if(Object.prototype.toString.call(binding.value) === '[object Array]'){
+        el.__tapEvent.vueHandler = binding.value[0];
+        for (let i = 1; i < binding.value.length; i++) {
+            const arg = binding.value[i];
+            el.__tapEvent.args.push(arg);
+        }
     }else{
-        bind(el, 'click', el.__tapEvent.clickHandler, binding.modifiers)
+        el.__tapEvent.vueHandler = function (){};
+        console.error('v-tap needs to bind a function or an array of which the first item is a function')
+    }
+    if(touchSupport){
+        bind(el, 'touchstart', startHandler, binding.modifiers)
+        bind(el, 'touchend', endHandler, binding.modifiers)
+    }else{
+        bind(el, 'click', clickHandler, binding.modifiers)
     }
 }
 
 function unbindFunction(el, binding){
     if(touchSupport){
-        unbind(el, 'touchstart', el.__tapEvent.startHandler, binding.modifiers)
-        unbind(el, 'touchend', el.__tapEvent.endHandler, binding.modifiers)
+        unbind(el, 'touchstart', startHandler, binding.modifiers)
+        unbind(el, 'touchend', endHandler, binding.modifiers)
     }else{
-        unbind(el, 'click', el.__tapEvent.clickHandler, binding.modifiers)
+        unbind(el, 'click', clickHandler, binding.modifiers)
     }
 }
 

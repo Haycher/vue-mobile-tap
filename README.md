@@ -17,7 +17,7 @@ new Vue({
 }).$mount('#app')
 ```
 
-## Examples for common situation
+## Example for common situation
 
 ```html
 <template>
@@ -25,21 +25,21 @@ new Vue({
         <div class="btn" v-tap="tapBtn">button</div>
     </div>
 </template>
-```
-```JavaScript
+<script>
 export default {
     methods:{
-        tapBtn(touchStartEvent, touchEndEvent){
+        tapBtn(){
             console.log('I am first')
         },
-        tapApp(touchStartEvent, touchEndEvent){
+        tapApp(){
             console.log('I am second')
         }
     }
 }
+</script>
 ```
 
-## Examples for once situation
+## Example for once situation
 
 ```html
 <template>
@@ -47,18 +47,18 @@ export default {
         <div class="btn" v-tap.once="tapBtn">button</div>
     </div>
 </template>
-```
-```JavaScript
+<script>
 export default {
     methods:{
-        tapBtn(touchStartEvent, touchEndEvent){
+        tapBtn(){
             console.log('I run only once')
         }
     }
 }
+</script>
 ```
 
-## Examples for stopPropagation situation
+## Example for stopPropagation situation
 
 ```html
 <template>
@@ -66,30 +66,56 @@ export default {
         <div class="btn" v-tap.stop="tapBtn">button</div>
     </div>
 </template>
-```
-```JavaScript
+<script>
 export default {
     methods:{
-        tapBtn(touchStartEvent, touchEndEvent){
+        tapBtn(){
             console.log('I am first')
         },
-        tapApp(touchStartEvent, touchEndEvent){
+        tapApp(){
             console.log('I can not run when btn was clicked.')
         }
     }
 }
+</script>
 ```
 
-## Touch is not supported, tap event is click event
-```JavaScript
+## Example for pass arguments situation
+
+```html
+<template>
+    <div id="app" v-tap="tapApp">
+        <div class="btn" v-tap="[tapBtn, arg1, arg2, arg3]">button</div>
+    </div>
+</template>
+<script>
 export default {
     methods:{
-        tapBtn(touchStartEvent, touchEndEvent){
-            console.log(touchStartEvent) //clickEvent
-            console.log(touchEndEvent) //undefined
+        tapBtn(eventObj, arg1, arg2, arg3){
+            console.log(eventObj)// {touchstartEvent: touchstartEvent, touchendEvent: touchendEvent}
         }
     }
 }
+</script>
+```
+
+
+## Notice! when touch event is not supported, the eventObj is different
+```html
+<template>
+    <div id="app">
+        <div class="btn" v-tap="tapBtn">button</div>
+    </div>
+</template>
+<script>
+export default {
+    methods:{
+        tapBtn(eventObj){
+            console.log(eventObj) // {clickEvent: clickEvent}
+        }
+    }
+}
+</script>
 ```
 
 ## Contact
