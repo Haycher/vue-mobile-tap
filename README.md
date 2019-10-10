@@ -6,6 +6,7 @@ npm i vue-mobile-tap
 ```
 
 ## Project setup
+### Register a global custom directive called `v-tap`
 ```JavaScript
 import Vue from 'vue'
 import Tap from 'vue-mobile-tap'
@@ -15,6 +16,21 @@ Vue.use(Tap)
 new Vue({
     render: h => h(App)
 }).$mount('#app')
+```
+
+### register a locally instead directive called `v-tap`
+```html
+<script>
+import { bindFunction, unbindFunction } from 'vue-mobile-tap'
+export default {
+    directives: {
+        tap: {
+            inserted: bindFunction,
+            unbind: unbindFunction
+        }
+    }
+}
+</script>
 ```
 
 ## Example for common situation

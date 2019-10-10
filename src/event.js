@@ -50,7 +50,7 @@ function handlerController(el, event, type){
         let e = event.changedTouches[0];
         tapEvent.endX = e.clientX;
         tapEvent.endY = e.clientY;
-        const tapWidth = Math.sqrt(tapEvent.endX - tapEvent.startX) + Math.sqrt(tapEvent.endY - tapEvent.startY);
+        const tapWidth = Math.abs(tapEvent.endX - tapEvent.startX)**2 + Math.abs(tapEvent.endY - tapEvent.startY)**2;
         const timeDiff = new Date().getTime() - tapEvent.startTime;
         if(tapWidth < 50 && timeDiff < 600){
             tapEvent.vueHandler({
