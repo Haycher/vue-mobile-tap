@@ -28,7 +28,11 @@ function getOptions(modifiers){
     if(passiveSupport) {
         return {
             capture: false, // 冒泡阶段触发
-            passive: modifiers.passive === undefined ? modifiers.passive : true   // 让 preventDefault() 失效,让tap事件响应更快
+            /**
+             * 高版本的chrome浏览器当passive为true时，会使 event.preventDefault() 失效，使得 touch 事件响应更快
+             * modifiers.stop代表只在当前节点发生tap事件，不向上传递，这时候需要在 touchend 事件中执行 event.preventDefault()； 防止点透现象的发生
+             */
+            passive: modifiers.stop ? false : true
         }
     }else{
         return false;
@@ -39,6 +43,9 @@ function handlerController(el, event, type){
     let tapEvent = el.__tapEvent;
     if(tapEvent.modifiers.stop){//stop标记位用于阻止事件冒泡
         event.stopPropagation();
+        if(type === 'touchend'){//防止点透现象触发
+            event.preventDefault();
+        }
     }
     if(type === 'touchstart'){
         let e = event.touches[0];

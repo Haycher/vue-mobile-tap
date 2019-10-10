@@ -55,7 +55,8 @@ export default {
 </script>
 ```
 
-## Example for once situation
+## v-tap.once
+### `v-tap.once` handler will only run once
 
 ```html
 <template>
@@ -74,7 +75,9 @@ export default {
 </script>
 ```
 
-## Example for stopPropagation situation
+## v-tap.stop
+### Touch Event and click Event will no bubble up.
+### It also prevent point-through event happen.
 
 ```html
 <template>
