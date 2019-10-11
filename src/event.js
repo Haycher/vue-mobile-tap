@@ -52,14 +52,13 @@ function handlerController(el, event, type){
         tapEvent.startX = e.clientX;
         tapEvent.startY = e.clientY;
         tapEvent.touchstartEvent = event;
-        tapEvent.startTime = new Date().getTime();
     }else if(type === 'touchend'){
         let e = event.changedTouches[0];
         tapEvent.endX = e.clientX;
         tapEvent.endY = e.clientY;
         const tapWidth = Math.abs(tapEvent.endX - tapEvent.startX)**2 + Math.abs(tapEvent.endY - tapEvent.startY)**2;
-        const timeDiff = new Date().getTime() - tapEvent.startTime;
-        if(tapWidth < 50 && timeDiff < 600){
+        const timeDiff = e.timeStamp - tapEvent.touchstartEvent.timeStamp;
+        if(tapWidth < 80 && timeDiff < 600){
             tapEvent.vueHandler({
                 touchstartEvent: tapEvent.touchstartEvent,
                 touchendEvent: event
@@ -107,7 +106,7 @@ function bindFunction(el, binding){
         }
     }else{
         el.__tapEvent.vueHandler = function (){};
-        console.error('v-tap needs to bind a function or an array of which the first item is a function')
+        console.error('v-tap needs to bind a handler or an array of which the first item is a handler')
     }
     if(touchSupport){
         bind(el, 'touchstart', startHandler, binding.modifiers)

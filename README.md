@@ -76,8 +76,8 @@ export default {
 ```
 
 ## v-tap.stop
-### Touch Event and click Event will no bubble up.
-### It also prevent point-through event happen.
+### Touch event and click event will no bubble up.
+### It also prevents point-through event happen.
 
 ```html
 <template>
@@ -119,7 +119,7 @@ export default {
 ```
 
 
-## Notice! when touch event is not supported, the eventObj is different
+## **Notice!**  when touch event is not supported, the eventObj is different
 ```html
 <template>
     <div id="app">
