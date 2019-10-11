@@ -119,7 +119,7 @@ export default {
 ```
 
 
-## **Notice!**  when touch event is not supported, the eventObj is different
+## Notice! when touch event is not supported, the eventObj is different
 ```html
 <template>
     <div id="app">
