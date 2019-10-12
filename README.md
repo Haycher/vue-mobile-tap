@@ -81,7 +81,7 @@ export default {
 ```html
 <template>
     <div id="app" v-tap="tapApp">
-        <div class="btn" v-tap.stop="tapBtn">button</div>
+        <button v-tap.stop="tapBtn">click me</button>
     </div>
 </template>
 <script>
@@ -90,7 +90,7 @@ export default {
         tapBtn(){
             console.log('I was clicked.')
         },
-        tapApp(){ //It will not trigger when the but is clicked.
+        tapApp(){ //It will not trigger when button was clicked.
             
         }
     }
@@ -120,7 +120,7 @@ export default {
             this.showTop = false;
             console.log('Top hide now.')
         },
-        clickApp(){ //It will not trigger when the top is hidden.
+        clickApp(){ //It will not trigger when top hide.
 
         }
     }
@@ -128,7 +128,8 @@ export default {
 </script>
 ```
 
-## Example for pass arguments situation
+## v-tap="[tapBtn, arg...]"
+### Example for pass arguments
 
 ```html
 <template>
