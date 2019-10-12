@@ -4,7 +4,6 @@ export default {
     install(Vue){
         Vue.directive('tap', {
             bind: bindFunction,
-            componentUpdated: bindFunction,
             unbind: unbindFunction
         });
     }
