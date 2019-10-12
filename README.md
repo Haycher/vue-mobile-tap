@@ -129,7 +129,7 @@ export default {
 </script>
 ```
 
-### `v-tap="[tapBtn, arg...]"`
+### `v-tap="[tapBtn, args...]"`
 #### Example for pass arguments
 
 ```html
