@@ -45,10 +45,10 @@ export default {
 export default {
     methods:{
         tapBtn(){
-            console.log('I am first')
+            console.log('I was trigger first.')
         },
         tapApp(){
-            console.log('I am second')
+            console.log('I was triggered later.')
         }
     }
 }
@@ -56,7 +56,7 @@ export default {
 ```
 
 ## v-tap.once
-### `v-tap.once` handler will only run once
+### `v-tap.once` handler will only trigger once
 
 ```html
 <template>
@@ -68,7 +68,7 @@ export default {
 export default {
     methods:{
         tapBtn(){
-            console.log('I run only once')
+            console.log('I trigger only once')
         }
     }
 }
@@ -76,8 +76,7 @@ export default {
 ```
 
 ## v-tap.stop
-### Touch event and click event will no bubble up.
-### It also prevents point-through event happen.
+### <code>event.stopPropagation()</code>
 
 ```html
 <template>
@@ -89,10 +88,40 @@ export default {
 export default {
     methods:{
         tapBtn(){
-            console.log('I am first')
+            console.log('I was clicked.')
         },
-        tapApp(){
-            console.log('I can not run when btn was clicked.')
+        tapApp(){ //It will not trigger when the but is clicked.
+            
+        }
+    }
+}
+</script>
+```
+
+## v-tap.prevent
+### <code>event.preventDefault()</code>
+### It also prevents point-through event happen | 防止点透事件触发
+
+```html
+<template>
+    <div id="app" @click="clickApp">
+        <div v-if="showTop" class="top" v-tap.prevent="tapTop">I'll hide when I'm clicked</div>
+    </div>
+</template>
+<script>
+export default {
+    data(){
+        return{
+            showTop: true
+        }
+    },
+    methods:{
+        tapTop(){
+            this.showTop = false;
+            console.log('Top hide now.')
+        },
+        clickApp(){ //It will not trigger when the top is hidden.
+
         }
     }
 }

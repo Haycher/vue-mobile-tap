@@ -30,64 +30,66 @@ function getOptions(modifiers){
             capture: false, // 冒泡阶段触发
             /**
              * 高版本的chrome浏览器当passive为true时，会使 event.preventDefault() 失效，使得 touch 事件响应更快
-             * modifiers.stop代表只在当前节点发生tap事件，不向上传递，这时候需要在 touchend 事件中执行 event.preventDefault()； 防止点透现象的发生
+             * modifiers.prevent === true 会在事件handler中执行 event.preventDefault()；
              */
-            passive: modifiers.stop ? false : true
+            passive: modifiers.prevent ? false : true
         }
     }else{
         return false;
     }
 }
 
-function handlerController(el, event, type){
-    let tapEvent = el.__tapEvent;
-    if(tapEvent.modifiers.stop){//stop标记位用于阻止事件冒泡
+function analysisEvent(modifiers, event){
+    //阻止 tap 事件向上冒泡
+    if(modifiers.stop){
         event.stopPropagation();
-        if(type === 'touchend'){//防止点透现象触发
-            event.preventDefault();
-        }
     }
-    if(type === 'touchstart'){
-        let e = event.touches[0];
-        tapEvent.startX = e.clientX;
-        tapEvent.startY = e.clientY;
-        tapEvent.touchstartEvent = event;
-    }else if(type === 'touchend'){
-        let e = event.changedTouches[0];
-        tapEvent.endX = e.clientX;
-        tapEvent.endY = e.clientY;
-        const tapWidth = Math.abs(tapEvent.endX - tapEvent.startX)**2 + Math.abs(tapEvent.endY - tapEvent.startY)**2;
-        const timeDiff = event.timeStamp - tapEvent.touchstartEvent.timeStamp;
-        if(tapWidth < 80 && timeDiff < 600){
-            tapEvent.vueHandler({
-                touchstartEvent: tapEvent.touchstartEvent,
-                touchendEvent: event
-            }, ...tapEvent.args);
-            if(tapEvent.modifiers.once){
-                unbind(el, 'touchstart', startHandler, tapEvent.modifiers)
-                unbind(el, 'touchend', endHandler, tapEvent.modifiers)
-            }
-        }
-    }else{
-        tapEvent.vueHandler({
-            clickEvent: event
-        }, ...tapEvent.args);
-        if(tapEvent.modifiers.once){
-            unbind(el, 'click', clickHandler, tapEvent.modifiers)
-        }
+
+    //绑定 v-tap 指令的 Dom 对象如果在执行 tapHandler 之后会隐藏的话，有可能会触发该 Dom 下方的 Dom 所绑定的 click 事件
+    //v-tap.prevent 会对 touchstart、touchend 事件执行 event.preventDefault(); 这样可以预防点透事件
+    if(modifiers.prevent){
+        event.preventDefault();
     }
 }
 
 function startHandler(event){
-    handlerController(this, event, 'touchstart')
+    let tapEvent = this.__tapEvent;
+    analysisEvent(tapEvent.modifiers, event);
+    tapEvent.touchstartEvent = event;
+    let e = event.touches[0];
+    tapEvent.startX = e.clientX;
+    tapEvent.startY = e.clientY;
 }
 
 function endHandler(event){
-    handlerController(this, event, 'touchend')
+    let tapEvent = this.__tapEvent;
+    analysisEvent(tapEvent.modifiers, event);
+    let e = event.changedTouches[0];
+    tapEvent.endX = e.clientX;
+    tapEvent.endY = e.clientY;
+    const tapWidth = Math.abs(tapEvent.endX - tapEvent.startX)**2 + Math.abs(tapEvent.endY - tapEvent.startY)**2;
+    const timeDiff = event.timeStamp - tapEvent.touchstartEvent.timeStamp;
+    if(tapWidth < 80 && timeDiff < 600){
+        tapEvent.vueHandler({
+            touchstartEvent: tapEvent.touchstartEvent,
+            touchendEvent: event
+        }, ...tapEvent.args);
+        if(tapEvent.modifiers.once){
+            unbind(this, 'touchstart', startHandler, tapEvent.modifiers)
+            unbind(this, 'touchend', endHandler, tapEvent.modifiers)
+        }
+    }
 }
 
 function clickHandler(event){
-    handlerController(this, event, 'click')
+    let tapEvent = this.__tapEvent;
+    analysisEvent(tapEvent.modifiers, event);
+    tapEvent.vueHandler({
+        clickEvent: event
+    }, ...tapEvent.args);
+    if(tapEvent.modifiers.once){
+        unbind(this, 'click', clickHandler, tapEvent.modifiers)
+    }
 }
 
 function bindFunction(el, binding){
