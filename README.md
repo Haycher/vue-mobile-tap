@@ -33,8 +33,9 @@ export default {
 </script>
 ```
 
-## Example for common situation
+## Usage
 
+### Simple example
 ```html
 <template>
     <div id="app" v-tap="tapApp">
@@ -55,8 +56,8 @@ export default {
 </script>
 ```
 
-## v-tap.once
-### `v-tap.once` handler will only trigger once
+### `v-tap.once`
+#### `v-tap.once` handler will only trigger once
 
 ```html
 <template>
@@ -75,8 +76,8 @@ export default {
 </script>
 ```
 
-## v-tap.stop
-### <code>event.stopPropagation()</code>
+### `v-tap.stop`
+#### <code>event.stopPropagation()</code>
 
 ```html
 <template>
@@ -98,9 +99,9 @@ export default {
 </script>
 ```
 
-## v-tap.prevent
-### <code>event.preventDefault()</code>
-### It also prevents point-through event happen | 防止点透事件触发
+### `v-tap.prevent`
+#### <code>event.preventDefault()</code>
+#### It also prevents point-through event happen | 防止点透事件触发
 
 ```html
 <template>
@@ -128,8 +129,8 @@ export default {
 </script>
 ```
 
-## v-tap="[tapBtn, arg...]"
-### Example for pass arguments
+### `v-tap="[tapBtn, arg...]"`
+#### Example for pass arguments
 
 ```html
 <template>
@@ -147,9 +148,8 @@ export default {
 }
 </script>
 ```
-
-
-## Notice! when touch event is not supported, the eventObj is different
+### Notice
+#### when touch event is not supported, tap event handler arguments[0] is different
 ```html
 <template>
     <div id="app">
