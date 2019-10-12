@@ -105,8 +105,13 @@ export default {
 
 ```html
 <template>
-    <div id="app" @click="clickApp">
-        <div v-if="showTop" class="top" v-tap.prevent="tapTop">I'll hide when I'm clicked</div>
+    <div id="app">
+        <!-- bottom_div and top_div is not the parent-child relationship, but top_div show on the top of bottom_div.
+        If do not prevent top_div's default touchend event, the point-through event will happen. -->
+        <!-- bottom_div 和 top_div 没有父子关系, 但是 top_div 在 bottom_div 的上面显示。
+        如果不阻止 top_div 的 touchend 事件，bottom_div 的 click 事件会在 top_div 消失后触发。 -->
+        <div class="bottom_div" @click="clickBottom"></div>
+        <div class="top_div" v-tap.prevent="tapTop" v-if="showTop">I'll hide when I'm clicked</div>
     </div>
 </template>
 <script>
@@ -119,14 +124,35 @@ export default {
     methods:{
         tapTop(){
             this.showTop = false;
-            console.log('Top hide now.')
+            console.log('top_div hide now.')
         },
-        clickApp(){ //It will not trigger when top hide.
-
+        clickBottom(){ //It will not trigger when top_div hide.
+            console.log('bottom_div was clicked')
         }
     }
 }
 </script>
+<style>
+    #app{
+        position: relative;
+    }
+    .bottom_div{
+        background: #e3e3e3;
+        height: 200px;
+    }
+    .top_div{
+        position: absolute;
+        width: 72%;
+        left: 14%;
+        top: 75px;
+        font-size: 16px;
+        line-height: 50px;
+        background: #0a9;
+        color: #fff;
+        text-align: center;
+        border-radius: 3px;
+    }
+</style>
 ```
 
 ### `v-tap="[tapBtn, args...]"`
